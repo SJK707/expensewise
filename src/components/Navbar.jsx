@@ -21,6 +21,9 @@ export default function Navbar() {
           <NavLink to="/transactions" className={linkClass}>
            History
           </NavLink>
+          <NavLink to="/budgets" className={linkClass}>
+           Budgets
+          </NavLink>
           <NavLink to="/add" className={linkClass}>
             Add
           </NavLink>

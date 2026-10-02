@@ -1,3 +1,4 @@
+import Budgets from './pages/Budgets'
 import Transactions from './pages/Transactions'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
@@ -24,6 +25,7 @@ function App() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/add" element={<AddTransaction />} />
             <Route path="/transactions" element={<Transactions />} />
+            <Route path="/budgets" element={<Budgets />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />
