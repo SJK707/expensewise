@@ -7,13 +7,16 @@ import {
   todayLocal,
 } from '../lib/constants'
 
-export default function TransactionForm({ onSaved }) {
-  const [type, setType] = useState('expense')
-  const [amount, setAmount] = useState('')
-  const [category, setCategory] = useState('Food')
-  const [description, setDescription] = useState('')
-  const [date, setDate] = useState(todayLocal())
-  const [paymentMethod, setPaymentMethod] = useState('UPI')
+// transaction: pass an existing row to EDIT it. Leave out to ADD a new one.
+export default function TransactionForm({ transaction, onSaved, onCancel }) {
+  const isEdit = Boolean(transaction)
+
+  const [type, setType] = useState(transaction?.type ?? 'expense')
+  const [amount, setAmount] = useState(transaction ? String(transaction.amount) : '')
+  const [category, setCategory] = useState(transaction?.category ?? 'Food')
+  const [description, setDescription] = useState(transaction?.description ?? '')
+  const [date, setDate] = useState(transaction?.date ?? todayLocal())
+  const [paymentMethod, setPaymentMethod] = useState(transaction?.payment_method ?? 'UPI')
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [saving, setSaving] = useState(false)
@@ -22,7 +25,6 @@ export default function TransactionForm({ onSaved }) {
 
   const handleTypeChange = (newType) => {
     setType(newType)
-    // Reset category so an expense category isn't kept on an income entry
     setCategory(newType === 'expense' ? EXPENSE_CATEGORIES[0] : INCOME_CATEGORIES[0])
   }
 
@@ -39,15 +41,18 @@ export default function TransactionForm({ onSaved }) {
 
     setSaving(true)
 
-    // user_id is filled in automatically by the database (auth.uid())
-    const { error } = await supabase.from('transactions').insert({
+    const row = {
       amount: value,
       type,
       category,
       description: description.trim() || null,
       date,
       payment_method: paymentMethod,
-    })
+    }
+
+    const { error } = isEdit
+      ? await supabase.from('transactions').update(row).eq('id', transaction.id)
+      : await supabase.from('transactions').insert(row)
 
     setSaving(false)
 
@@ -56,9 +61,11 @@ export default function TransactionForm({ onSaved }) {
       return
     }
 
-    setSuccess('Transaction saved ✅')
-    setAmount('')
-    setDescription('')
+    if (!isEdit) {
+      setSuccess('Transaction saved ✅')
+      setAmount('')
+      setDescription('')
+    }
     onSaved?.()
   }
 
@@ -68,9 +75,10 @@ export default function TransactionForm({ onSaved }) {
 
   return (
     <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow p-6 space-y-4">
-      <h2 className="text-lg font-semibold text-slate-800">Add Transaction</h2>
+      <h2 className="text-lg font-semibold text-slate-800">
+        {isEdit ? 'Edit Transaction' : 'Add Transaction'}
+      </h2>
 
-      {/* Expense / Income toggle */}
       <div className="grid grid-cols-2 gap-2">
         {['expense', 'income'].map((t) => (
           <button
@@ -113,6 +121,8 @@ export default function TransactionForm({ onSaved }) {
             onChange={(e) => setCategory(e.target.value)}
             className={inputClass}
           >
+            {/* keeps an older category visible when editing */}
+            {!categories.includes(category) && <option>{category}</option>}
             {categories.map((c) => (
               <option key={c}>{c}</option>
             ))}
@@ -158,13 +168,24 @@ export default function TransactionForm({ onSaved }) {
       {error && <p className="text-sm text-red-600">{error}</p>}
       {success && <p className="text-sm text-emerald-600">{success}</p>}
 
-      <button
-        type="submit"
-        disabled={saving}
-        className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white font-medium rounded-lg py-2 transition"
-      >
-        {saving ? 'Saving...' : 'Add Transaction'}
-      </button>
+      <div className="flex gap-2">
+        {isEdit && (
+          <button
+            type="button"
+            onClick={onCancel}
+            className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-lg py-2 transition"
+          >
+            Cancel
+          </button>
+        )}
+        <button
+          type="submit"
+          disabled={saving}
+          className="flex-1 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white font-medium rounded-lg py-2 transition"
+        >
+          {saving ? 'Saving...' : isEdit ? 'Save changes' : 'Add Transaction'}
+        </button>
+      </div>
     </form>
   )
 }
