@@ -1,3 +1,4 @@
+import Goals from './pages/Goals'
 import Budgets from './pages/Budgets'
 import Transactions from './pages/Transactions'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
@@ -26,6 +27,7 @@ function App() {
             <Route path="/add" element={<AddTransaction />} />
             <Route path="/transactions" element={<Transactions />} />
             <Route path="/budgets" element={<Budgets />} />
+            <Route path="/goals" element={<Goals />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />

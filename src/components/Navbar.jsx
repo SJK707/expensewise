@@ -24,6 +24,9 @@ export default function Navbar() {
           <NavLink to="/budgets" className={linkClass}>
            Budgets
           </NavLink>
+          <NavLink to="/goals" className={linkClass}>
+           Goals
+          </NavLink>
           <NavLink to="/add" className={linkClass}>
             Add
           </NavLink>
