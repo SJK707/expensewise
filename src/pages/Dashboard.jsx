@@ -228,10 +228,10 @@ export default function Dashboard() {
 
           {/* Floating add button */}
           <Link
-            to="/add"
-            className="fixed bottom-6 right-6 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-full shadow-lg px-5 py-3"
+          to="/add"
+          className="hidden md:block fixed bottom-6 right-6 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-full shadow-lg px-5 py-3"
           >
-            + Add
+           + Add
           </Link>
         </>
       )}
