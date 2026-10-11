@@ -27,6 +27,9 @@ export default function Navbar() {
           <NavLink to="/goals" className={linkClass}>
            Goals
           </NavLink>
+          <NavLink to="/recurring" className={linkClass}>
+           Recurring
+          </NavLink>
           <NavLink to="/add" className={linkClass}>
             Add
           </NavLink>
