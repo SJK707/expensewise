@@ -1,3 +1,4 @@
+import Analytics from './pages/Analytics'
 import Recurring from './pages/Recurring'
 import Goals from './pages/Goals'
 import Budgets from './pages/Budgets'
@@ -30,6 +31,7 @@ function App() {
             <Route path="/budgets" element={<Budgets />} />
             <Route path="/goals" element={<Goals />} />
             <Route path="/recurring" element={<Recurring />} />
+            <Route path="/analytics" element={<Analytics />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />
