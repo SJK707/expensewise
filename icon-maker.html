@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+  <head><meta charset="utf-8" /><title>Icon maker</title></head>
+  <body style="font-family: sans-serif; padding: 24px">
+    <h3>ExpenseWise icon maker</h3>
+    <p>Click each button to download a PNG.</p>
+    <button onclick="make(1024, 'full')">icon-only.png (1024, full icon)</button>
+    <button onclick="make(1024, 'foreground')">icon-foreground.png (₹ on transparent)</button>
+    <button onclick="make(1024, 'background')">icon-background.png (green only)</button>
+    <button onclick="make(192, 'full')">icon-192.png</button>
+    <button onclick="make(512, 'full')">icon-512.png</button>
+    <script>
+      function make(size, part) {
+        const names = {
+          full: size === 1024 ? 'icon-only' : 'icon-' + size,
+          foreground: 'icon-foreground',
+          background: 'icon-background',
+        }
+        const c = document.createElement('canvas')
+        c.width = c.height = size
+        const g = c.getContext('2d')
+
+        if (part !== 'foreground') {
+          g.fillStyle = '#059669'
+          g.fillRect(0, 0, size, size)
+        }
+        if (part !== 'background') {
+          g.fillStyle = '#ffffff'
+          g.font = 'bold ' + size * (part === 'foreground' ? 0.4 : 0.5) + 'px Arial, sans-serif'
+          g.textAlign = 'center'
+          g.textBaseline = 'middle'
+          g.fillText('₹', size / 2, size / 2 + size * 0.03)
+        }
+
+        const a = document.createElement('a')
+        a.href = c.toDataURL('image/png')
+        a.download = names[part] + '.png'
+        a.click()
+      }
+    </script>
+  </body>
+</html>
