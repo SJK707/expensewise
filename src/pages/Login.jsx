@@ -3,11 +3,42 @@ import { Navigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 
+function PasswordField({ label, value, onChange, show, onToggle, autoComplete, hint }) {
+  return (
+    <div>
+      <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
+      <div className="relative">
+        <input
+          type={show ? 'text' : 'password'}
+          required
+          minLength={6}
+          autoComplete={autoComplete}
+          value={value}
+          onChange={onChange}
+          className="w-full border border-slate-300 rounded-lg pl-3 pr-16 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+        />
+        <button
+          type="button"
+          onClick={onToggle}
+          aria-label={show ? 'Hide password' : 'Show password'}
+          className="absolute inset-y-0 right-0 px-3 text-xs font-medium text-slate-500 hover:text-emerald-600"
+        >
+          {show ? 'Hide' : 'Show'}
+        </button>
+      </div>
+      {hint && <p className="text-xs text-slate-400 mt-1">{hint}</p>}
+    </div>
+  )
+}
+
 export default function Login() {
   const { session } = useAuth()
   const [mode, setMode] = useState('login') // 'login' or 'signup'
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirm, setShowConfirm] = useState(false)
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -15,10 +46,18 @@ export default function Login() {
   // Already logged in? Go to the dashboard.
   if (session) return <Navigate to="/" replace />
 
+  const mismatch = mode === 'signup' && confirmPassword !== '' && password !== confirmPassword
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
     setMessage('')
+
+    if (mode === 'signup' && password !== confirmPassword) {
+      setError('Passwords do not match.')
+      return
+    }
+
     setSubmitting(true)
 
     if (mode === 'signup') {
@@ -37,6 +76,16 @@ export default function Login() {
     setSubmitting(false)
   }
 
+  const switchMode = () => {
+    setMode(mode === 'login' ? 'signup' : 'login')
+    setError('')
+    setMessage('')
+    setPassword('')
+    setConfirmPassword('')
+    setShowPassword(false)
+    setShowConfirm(false)
+  }
+
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-sm">
@@ -51,33 +100,45 @@ export default function Login() {
             <input
               type="email"
               required
+              autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Password</label>
-            <input
-              type="password"
-              required
-              minLength={6}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-            />
-            {mode === 'signup' && (
-              <p className="text-xs text-slate-400 mt-1">At least 6 characters</p>
-            )}
-          </div>
+          <PasswordField
+            label="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            show={showPassword}
+            onToggle={() => setShowPassword(!showPassword)}
+            autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+            hint={mode === 'signup' ? 'At least 6 characters' : null}
+          />
+
+          {mode === 'signup' && (
+            <div>
+              <PasswordField
+                label="Confirm password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                show={showConfirm}
+                onToggle={() => setShowConfirm(!showConfirm)}
+                autoComplete="new-password"
+              />
+              {mismatch && (
+                <p className="text-xs text-red-600 mt-1">Passwords do not match.</p>
+              )}
+            </div>
+          )}
 
           {error && <p className="text-sm text-red-600">{error}</p>}
           {message && <p className="text-sm text-emerald-600">{message}</p>}
 
           <button
             type="submit"
-            disabled={submitting}
+            disabled={submitting || mismatch}
             className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white font-medium rounded-lg py-2 transition"
           >
             {submitting ? 'Please wait...' : mode === 'login' ? 'Log in' : 'Sign up'}
@@ -85,11 +146,7 @@ export default function Login() {
         </form>
 
         <button
-          onClick={() => {
-            setMode(mode === 'login' ? 'signup' : 'login')
-            setError('')
-            setMessage('')
-          }}
+          onClick={switchMode}
           className="w-full text-sm text-slate-500 hover:text-emerald-600 mt-4"
         >
           {mode === 'login'
