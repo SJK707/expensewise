@@ -2,7 +2,7 @@
 
 A personal finance tracker for income, expenses, budgets, savings goals and recurring payments, with analytics and insights. One React codebase runs as a **website, an installable PWA, and an Android app**.
 
-**Live demo:**https://expensewise-opal.vercel.app/
+**Live demo:** https://expensewise-opal.vercel.app/
 
 ![Dashboard](docs/screenshots/dashboard.png)
 
